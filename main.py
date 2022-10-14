@@ -4,11 +4,16 @@ from time import sleep
 from ficha import Ficha
 from threading import Lock, enumerate, active_count
 import PySimpleGUI as sg
+from audioplayer import AudioPlayer
+import os
 
 lock_rodada = Lock()
 tabuleiro = Board(10, 10)
 fichas = []
 tempo_restante = 0
+sounds_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sounds')
+plim = AudioPlayer(os.path.join( sounds_dir, 'plim.mp3'))
+plim.volume = 30
 
 def iniciar_tabuleiro():
 	for linha in range(0, 10):
@@ -23,6 +28,7 @@ def mouse_click(button, linha, coluna):
 
 def remover_ficha_tabuleiro(ficha):
 	remover_ficha(ficha)
+	plim.play()
 	ficha.matar()
 
 
