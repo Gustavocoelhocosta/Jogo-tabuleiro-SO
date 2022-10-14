@@ -8,7 +8,7 @@ lock_rodada = Lock()
 tabuleiro = Board(10, 10)
 fichas = []
 tempo_restante = 0
-
+tempo, jogadas = None, None
 def iniciar_tabuleiro():
 	for linha in range(0, 10):
 		for coluna in range(0, 10):
@@ -73,13 +73,31 @@ def iniciar(tempo_total, jogadas):
 	tabuleiro.show()
 	print("Threads ({0}) {1}".format(enumerate(), active_count()))
 
-# def para_sempre():
-# 	while len(fichas) > 0:
-# 		print("Threads ({0}) {1}".format(enumerate(), active_count()))
-# 		sleep(1)
-# 	print("Threads ({0}) {1}".format(enumerate(), active_count()))
 
-# # thread = Thread(name="para sempre", target = para_sempre)
-# # thread.start()
+####janela inicial para escolha de dificuldade
+import PySimpleGUI as sg
 
-iniciar(30, 20)
+
+sg.theme('Paga moeda')   # Add a touch of color
+# All the stuff inside your window.
+layout = [  [sg.Text('Escolha o grau de dificuldade')],
+            [sg.Button('fácil'), sg.Button('médio'), sg.Button('difícil')] ]
+
+window = sg.Window('Cata Moeda', layout)
+# Event Loop to process "events" and get the "values" of the inputs
+
+while True:
+	event, values = window.read()
+	if event == 'fácil':
+		tempo, jogadas = 40, 30
+		break
+	elif event == 'médio':
+		tempo, jogadas = 30, 30
+		break
+	elif event == 'difícil':
+		tempo, jogadas = 20, 30
+		break
+
+window.close()
+
+iniciar(tempo, jogadas)
