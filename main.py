@@ -3,12 +3,13 @@ from game2dboard import Board
 from time import sleep
 from ficha import Ficha
 from threading import Lock, enumerate, active_count
+import PySimpleGUI as sg
 
 lock_rodada = Lock()
 tabuleiro = Board(10, 10)
 fichas = []
 tempo_restante = 0
-tempo, jogadas = None, None
+
 def iniciar_tabuleiro():
 	for linha in range(0, 10):
 		for coluna in range(0, 10):
@@ -56,7 +57,7 @@ def jogada(id, tempo_total, jogadas):
 
 def loop_do_jogo():
 	print("ghtytgt")
-	# tempo_restante -= 1
+	tempo_restante -= 1
 	tabuleiro.print("tempo restante: {0}".format(len(fichas)))
 
 def iniciar(tempo_total, jogadas):
@@ -74,30 +75,29 @@ def iniciar(tempo_total, jogadas):
 	print("Threads ({0}) {1}".format(enumerate(), active_count()))
 
 
-####janela inicial para escolha de dificuldade
-import PySimpleGUI as sg
 
 
-sg.theme('Paga moeda')   # Add a touch of color
-# All the stuff inside your window.
-layout = [  [sg.Text('Escolha o grau de dificuldade')],
-            [sg.Button('fácil'), sg.Button('médio'), sg.Button('difícil')] ]
+def tela_inicial_dificuldade():
+	tempo, jogadas = None, None
+	sg.theme('Jogo pega moeda')
+	layout = [  [sg.Text('Escolha o grau de dificuldade')],
+				[sg.Button('fácil'), sg.Button('médio'), sg.Button('difícil')] ]
+	window = sg.Window('Cata Moeda', layout)
+	while True:
+		event, values = window.read()
+		if event == 'fácil':
+			tempo, jogadas = 40, 30
+			break
+		elif event == 'médio':
+			tempo, jogadas = 30, 30
+			break
+		elif event == 'difícil':
+			tempo, jogadas = 20, 30
+			break
+		else:
+			return
 
-window = sg.Window('Cata Moeda', layout)
-# Event Loop to process "events" and get the "values" of the inputs
+	window.close()
+	iniciar(tempo, jogadas)
 
-while True:
-	event, values = window.read()
-	if event == 'fácil':
-		tempo, jogadas = 40, 30
-		break
-	elif event == 'médio':
-		tempo, jogadas = 30, 30
-		break
-	elif event == 'difícil':
-		tempo, jogadas = 20, 30
-		break
-
-window.close()
-
-iniciar(tempo, jogadas)
+tela_inicial_dificuldade()
