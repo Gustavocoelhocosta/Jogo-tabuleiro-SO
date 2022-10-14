@@ -57,47 +57,56 @@ def jogada(id, tempo_total, jogadas):
 
 def loop_do_jogo():
 	print("ghtytgt")
-	tempo_restante -= 1
+	#tempo_restante -= 1
 	tabuleiro.print("tempo restante: {0}".format(len(fichas)))
 
-def iniciar(tempo_total, jogadas):
-	iniciar_tabuleiro()
-	for id in range(1, 10):
-		thread = Thread(target = jogada, args = (id, tempo_total, jogadas))
-		thread.start()
-	tabuleiro.on_mouse_click = mouse_click
-	print("Threads ({0}) {1}".format(enumerate(), active_count()))
-	tabuleiro.create_output()
-	tempo_restante = tempo_total
-	tabuleiro.on_timer = loop_do_jogo
-	tabuleiro.start_timer(1000)
-	tabuleiro.show()
-	print("Threads ({0}) {1}".format(enumerate(), active_count()))
+def reinicia(tecla):
+	if tecla == 'r':
+		tabuleiro.close()
 
+def iniciar():
+	tempo_total, jogadas = tela_inicial_dificuldade()
+	if tempo_total:
+		iniciar_tabuleiro()
+		for id in range(1, 10):
+			thread = Thread(target = jogada, args = (id, tempo_total, jogadas))
+			thread.start()
+		tabuleiro.on_mouse_click = mouse_click
+		tabuleiro.on_key_press = reinicia
+		print("Threads ({0}) {1}".format(enumerate(), active_count()))
+		tabuleiro.create_output()
+		tempo_restante = tempo_total
+		tabuleiro.on_timer = loop_do_jogo
+		tabuleiro.start_timer(1000)
+		tabuleiro.show()
+	else:
+		return
 
 
 
 def tela_inicial_dificuldade():
-	tempo, jogadas = None, None
-	sg.theme('Jogo pega moeda')
+	sg.theme('Dark Green 1')
 	layout = [  [sg.Text('Escolha o grau de dificuldade')],
 				[sg.Button('fácil'), sg.Button('médio'), sg.Button('difícil')] ]
 	window = sg.Window('Cata Moeda', layout)
 	while True:
 		event, values = window.read()
 		if event == 'fácil':
-			tempo, jogadas = 40, 30
-			break
+			print('facil')
+			window.close()
+			return 40, 30
+
 		elif event == 'médio':
-			tempo, jogadas = 30, 30
-			break
+			window.close()
+			return 30, 30
+
 		elif event == 'difícil':
-			tempo, jogadas = 20, 30
-			break
+			window.close()
+			return 20, 30
+
 		else:
-			return
+			window.close()
+			return False
 
-	window.close()
-	iniciar(tempo, jogadas)
 
-tela_inicial_dificuldade()
+iniciar()
