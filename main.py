@@ -82,13 +82,40 @@ def iniciar():
 	else:
 		return
 
+def tela_fim_jogo(resultado):
+	mensagem = ''
+	if resultado == 'venceu':
+		mensagem = "você venceu, bora jogar denovo?"
+
+	elif resultado == 'perdeu':
+		mensagem = "infelizmente você perdeu, bora jogar denovo?"
+
+	else:
+		return
+
+	sg.theme('Dark Green 1')
+	layout = [[sg.Text(mensagem)],
+			  [sg.Button('reiniciar jogo')]]
+	window = sg.Window('Cata Moeda', layout, location=(800, 300))
+
+	while True:
+		event, values = window.read()
+		if event == 'reiniciar jogo':
+			window.close()
+			iniciar()
+		else:
+			window.close()
+
+
+
 
 
 def tela_inicial_dificuldade():
 	sg.theme('Dark Green 1')
 	layout = [  [sg.Text('Escolha o grau de dificuldade')],
 				[sg.Button('fácil'), sg.Button('médio'), sg.Button('difícil')] ]
-	window = sg.Window('Cata Moeda', layout)
+	window = sg.Window('Cata Moeda', layout, location=(800,300))
+
 	while True:
 		event, values = window.read()
 		if event == 'fácil':
@@ -110,3 +137,4 @@ def tela_inicial_dificuldade():
 
 
 iniciar()
+
