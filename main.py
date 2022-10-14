@@ -11,9 +11,11 @@ lock_rodada = Lock()
 tabuleiro = Board(10, 10)
 fichas = []
 tempo_restante = 0
+lock_matar_ficha = Lock()
+
 sounds_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sounds')
 plim = AudioPlayer(os.path.join( sounds_dir, 'plim.mp3'))
-plim.volume = 30
+plim.volume = 20
 
 def iniciar_tabuleiro():
 	for linha in range(0, 10):
@@ -21,15 +23,19 @@ def iniciar_tabuleiro():
 			tabuleiro[linha][coluna] = ""
 
 def mouse_click(button, linha, coluna):
-	print("{0}:{1}".format(linha, coluna))
 	for ficha in fichas:
 		if ficha.esta_na_posicao(linha, coluna):
 			remover_ficha_tabuleiro(ficha)
 
 def remover_ficha_tabuleiro(ficha):
+	lock_matar_ficha.acquire()
 	remover_ficha(ficha)
+	fichas.remove(ficha)
+	lock_matar_ficha.release()
 	plim.play()
 	ficha.matar()
+
+
 
 
 def executar_rodada(ficha):
@@ -62,19 +68,21 @@ def jogada(id, tempo_total, jogadas):
 		jogadas -= 1
 
 def loop_do_jogo():
-	print("ghtytgt")
-	#tempo_restante -= 1
-	tabuleiro.print("tempo restante: {0}".format(len(fichas)))
+	if len(fichas) == 0:
+		return tabuleiro.close()
+	tabuleiro.print("Fichas restantes: {0}".format(len(fichas)))
 
 def reinicia(tecla):
 	if tecla == 'r':
-		tabuleiro.close()
+		return tabuleiro.close()
+	else:
+		None
 
 def iniciar():
 	tempo_total, jogadas = tela_inicial_dificuldade()
 	if tempo_total:
 		iniciar_tabuleiro()
-		for id in range(1, 10):
+		for id in range(1, 3):
 			thread = Thread(target = jogada, args = (id, tempo_total, jogadas))
 			thread.start()
 		tabuleiro.on_mouse_click = mouse_click
@@ -83,13 +91,18 @@ def iniciar():
 		tabuleiro.create_output()
 		tempo_restante = tempo_total
 		tabuleiro.on_timer = loop_do_jogo
-		tabuleiro.start_timer(1000)
+		tabuleiro.start_timer(50)
 		tabuleiro.show()
 	else:
 		return
+	if len(fichas) == 0:
+		resultado = 'venceu'
+	else:
+		resultado = 'perdeu'
+	print(resultado)
+	tela_fim_jogo(resultado)
 
 def tela_fim_jogo(resultado):
-	mensagem = ''
 	if resultado == 'venceu':
 		mensagem = "você venceu, bora jogar denovo?"
 
@@ -98,19 +111,25 @@ def tela_fim_jogo(resultado):
 
 	else:
 		return
-
+	print(mensagem)
 	sg.theme('Dark Green 1')
 	layout = [[sg.Text(mensagem)],
 			  [sg.Button('reiniciar jogo')]]
-	window = sg.Window('Cata Moeda', layout, location=(800, 300))
+	window2 = sg.Window('Cata Moeda', layout, location=(800, 300))
 
 	while True:
-		event, values = window.read()
+		event, values = window2.read()
 		if event == 'reiniciar jogo':
-			window.close()
+			window2.close()
 			iniciar()
+			break
+		elif event == WIN_CLOSED:
+			window2.close()
+			break
 		else:
-			window.close()
+			window2.close()
+			break
+
 
 
 
@@ -139,7 +158,7 @@ def tela_inicial_dificuldade():
 
 		else:
 			window.close()
-			return False
+			return False, False
 
 
 iniciar()
